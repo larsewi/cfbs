@@ -43,6 +43,7 @@ def git_commit_maybe_prompt(commit_msg, non_interactive, scope="all"):
             prompt += "\nEdit it?"
 
         ans = prompt_user(
+            non_interactive,
             prompt,
             choices=YES_NO_CHOICES,
             default="no",
@@ -108,7 +109,9 @@ def with_git_commit(
                 return ret
 
             try:
-                git_commit_maybe_prompt(msg, config.non_interactive, files_to_commit + files)
+                git_commit_maybe_prompt(
+                    msg, config.non_interactive, files_to_commit + files
+                )
             except CFBSGitError as e:
                 print(str(e))
                 try:
