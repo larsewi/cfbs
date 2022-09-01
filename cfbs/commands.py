@@ -60,7 +60,7 @@ def pretty_command(filenames: list, check: bool, keep_order: bool) -> int:
 
     cfbs_sorting_rules = None
     if not keep_order:
-        top_level_keys = ("name", "description", "type", "index")
+        top_level_keys = ("name", "description", "type", "index", "git")
         module_keys = (
             "name",
             "description",
