@@ -63,7 +63,7 @@ def with_git_commit(
     files_to_commit,
     commit_msg,
     positional_args_lambdas=None,
-    failed_return=False,
+    failed_return=1,
 ):
     def decorator(fn):
         def decorated_fn(*args, **kwargs):
