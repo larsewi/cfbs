@@ -206,7 +206,6 @@ def fetch_archive(url, checksum=None, directory=None, with_index=True):
     else:
         user_error("Unsupported archive type: '%s'" % url)
 
-    archive_name = strip_right(archive_filename, archive_type)
     downloads = os.path.join(cfbs_dir(), "downloads")
 
     archive_dir = os.path.join(downloads, archive_dirname)
