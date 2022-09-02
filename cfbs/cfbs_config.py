@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
+from operator import mod
 import os
 import logging as log
 
-from cfbs.utils import (
-    user_error,
-    read_file,
-    find,
-)
+from cfbs.utils import user_error, read_file, find, cp, cfbs_dir
 from cfbs.internal_file_management import (
     clone_url_repo,
     fetch_archive,
@@ -123,13 +120,7 @@ class CFBSConfig(CFBSJson):
             print("Added module: %s" % module["name"])
         self.validate_added_module(module)
 
-    def _add_using_url(
-        self,
-        url,
-        to_add: list,
-        added_by="cfbs add",
-        checksum=None,
-    ):
+    def _add_using_url(self, url, to_add: list, added_by="cfbs add", checksum=None):
         url_commit = None
         if url.endswith(SUPPORTED_ARCHIVES):
             config_path, url_commit = fetch_archive(url, checksum)
@@ -164,7 +155,21 @@ class CFBSConfig(CFBSJson):
                 user_error("Missing modules: " + ", ".join(missing))
             modules = [provides[k] for k in to_add]
 
+        assert config_path.endswith("cfbs.json")
+        content_dir = config_path[: -len("cfbs.json")]
+
         for module in modules:
+            # Copy input
+            if "subdirectory" in module:
+                src_path = os.path.join(
+                    content_dir, module["subdirectory"], "input.json"
+                )
+                dst_path = os.path.join(module["subdirectory"], "input.json")
+                if os.path.exists(src_path):
+                    cp(src_path, dst_path)
+
+            # TODO: Copy build steps CFE-4038
+
             self.add_with_dependencies(module, remote_config)
 
     @staticmethod
@@ -239,12 +244,7 @@ class CFBSConfig(CFBSJson):
             else:
                 print("Added module: %s (Dependency of %s)" % (name, added_by))
 
-    def _add_modules(
-        self,
-        to_add: list,
-        added_by="cfbs add",
-        checksum=None,
-    ) -> int:
+    def _add_modules(self, to_add: list, added_by="cfbs add", checksum=None) -> int:
         index = self.index
 
         modules = [Module(m) for m in to_add]
@@ -277,12 +277,7 @@ class CFBSConfig(CFBSJson):
 
         self._add_without_dependencies(modules_to_add)
 
-    def add_command(
-        self,
-        to_add: list,
-        added_by="cfbs add",
-        checksum=None,
-    ) -> int:
+    def add_command(self, to_add: list, added_by="cfbs add", checksum=None) -> int:
         if not to_add:
             user_error("Must specify at least one module to add")
 
@@ -292,10 +287,7 @@ class CFBSConfig(CFBSJson):
             ("https://", "git://", "ssh://")
         ):
             self._add_using_url(
-                url=to_add[0],
-                to_add=to_add[1:],
-                added_by=added_by,
-                checksum=checksum,
+                url=to_add[0], to_add=to_add[1:], added_by=added_by, checksum=checksum
             )
         else:
             self._add_modules(to_add, added_by, checksum)

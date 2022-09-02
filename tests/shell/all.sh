@@ -20,3 +20,4 @@ bash tests/shell/014_add_nonexistent.sh
 bash tests/shell/015_add_version.sh
 bash tests/shell/016_add_folders.sh
 bash tests/shell/017_info.sh
+bash tests/shell/018_input_copied.sh
