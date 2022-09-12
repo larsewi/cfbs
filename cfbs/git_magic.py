@@ -4,16 +4,14 @@ Here it's okay to depend on other parts of the CFBS codebase,
 do prompts, etc.
 """
 
-from collections import namedtuple
 from cfbs.prompts import YES_NO_CHOICES, prompt_user
 from cfbs.cfbs_config import CFBSConfig, CFBSReturnWithoutCommit
 from cfbs.git import git_commit, git_discard_changes_in_file, CFBSGitError, is_git_repo
 from cfbs.args import get_args
+from cfbs.result import Result
 import logging as log
 from functools import partial
 
-
-Result = namedtuple("Result", ["rc", "commit", "msg", "files"])
 
 first_commit = True
 
