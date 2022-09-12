@@ -319,7 +319,7 @@ def add_command(
     to_add: list,
     added_by="cfbs add",
     checksum=None,
-) -> int:
+) -> Result:
     config = CFBSConfig.get_instance()
     r = config.add_command(to_add, added_by, checksum)
     config.save()

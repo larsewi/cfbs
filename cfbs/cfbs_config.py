@@ -12,6 +12,7 @@ from cfbs.internal_file_management import (
 from cfbs.pretty import pretty
 from cfbs.cfbs_json import CFBSJson
 from cfbs.module import Module
+from cfbs.result import Result
 
 
 # Legacy; do not use. Use the 'Result' namedtuple instead.
@@ -281,7 +282,7 @@ class CFBSConfig(CFBSJson):
         if not to_add:
             user_error("Must specify at least one module to add")
 
-        before_adding = len(self["build"])
+        before = {m["name"] for m in self["build"]}
 
         if to_add[0].endswith(SUPPORTED_ARCHIVES) or to_add[0].startswith(
             ("https://", "git://", "ssh://")
@@ -292,9 +293,20 @@ class CFBSConfig(CFBSJson):
         else:
             self._add_modules(to_add, added_by, checksum)
 
-        if len(self["build"]) == before_adding:
-            # Not an error, we just want to exit successfully without
-            # making a git commit
-            raise CFBSReturnWithoutCommit(0)
+        added = {m["name"] for m in self["build"]}.difference(before)
 
-        return 0
+        msg = ""
+        count = 0
+        files = []
+        for name in added:
+            msg += "\n - Added module '%s'" % name
+            count += 1
+
+            input_json = os.path.join("./", name, "input.json")
+            if os.path.isfile(input_json):
+                files.append(input_json)
+
+        msg = "Added %d modules\n" % count + msg
+
+        changes_made = count > 0
+        return Result(0, changes_made, msg, files)
