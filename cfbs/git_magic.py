@@ -13,7 +13,7 @@ import logging as log
 from functools import partial
 
 
-Result = namedtuple("Result", ["rc", "commit", "msg"])
+Result = namedtuple("Result", ["rc", "commit", "msg", "files"])
 
 first_commit = True
 
@@ -72,8 +72,8 @@ def with_git_commit(
             except CFBSReturnWithoutCommit as e:
                 # Legacy; do not use. Use the 'Result' tuple instead.
                 return e.retval
-            ret, should_commit, msg = (
-                result if isinstance(result, Result) else (result, True, None)
+            ret, should_commit, msg, files = (
+                result if isinstance(result, Result) else (result, True, None, [])
             )
 
             # Message from the namedtuple overrides message from decorator
@@ -108,7 +108,7 @@ def with_git_commit(
                 return ret
 
             try:
-                git_commit_maybe_prompt(msg, config.non_interactive, files_to_commit)
+                git_commit_maybe_prompt(msg, config.non_interactive, files_to_commit + files)
             except CFBSGitError as e:
                 print(str(e))
                 try:
@@ -126,4 +126,4 @@ def with_git_commit(
     return decorator
 
 
-commit_after_command = partial(with_git_commit, (0,), ("cfbs.json",), failed_return=1)
+commit_after_command = partial(with_git_commit, (0,), ["cfbs.json"], failed_return=1)

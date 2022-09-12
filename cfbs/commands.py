@@ -566,7 +566,7 @@ def update_command(to_update):
     else:
         print("Modules are already up to date")
 
-    return Result(0, changes_made, msg)
+    return Result(0, changes_made, msg, [])
 
 
 def validate_command():
