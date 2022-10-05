@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import glob
 import logging as log
 
 from cfbs.utils import (
@@ -238,6 +239,17 @@ class CFBSConfig(CFBSJson):
                 print("Added module: %s" % name)
             else:
                 print("Added module: %s (Dependency of %s)" % (name, added_by))
+
+    def _add_to_bundlesequence(module):
+        name = module["name"]
+        if not name.startswith("./") or not name.endswith((".cf", "/")):
+            return
+
+        regex = r"bundle\s+agent\s+([a-zA-Z0-9_\200-\377]+)"
+
+        for file in [name] if name.endswith(".cf") else glob.glob("%s**/*.cf"):
+            with open(file, "r") as f:
+                pass
 
     def _add_modules(
         self,

@@ -281,3 +281,17 @@ def cache(func):
         return memo[key]
 
     return wrapper
+
+
+def load_bundlenames(file: str):
+    with open(file, "r") as f:
+        policy = f.read()
+    return loads_bundlenames(policy)
+
+
+def loads_bundlenames(policy: str):
+    # The lookbehind only supports fixed length strings
+    policy = re.sub(r"[ \t]+", " ", policy)
+
+    regex = r"(?<=^bundle agent )[a-zA-Z0-9_\200-\377]+"
+    return re.findall(regex, policy, re.MULTILINE)
